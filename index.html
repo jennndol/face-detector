@@ -1,0 +1,39 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Facial Recognition Test</title>
+<script src="//code.jquery.com/jquery-1.10.1.min.js"></script>
+<script type="text/javascript" charset="utf-8">
+var ws_path = 'ws://192.168.100.164:8000';
+//alert(ws_path);
+var ws = new WebSocket (ws_path);
+//alert(ws);
+ws.onopen = function () {
+params = JSON.stringify({command : 'video_feed', camera_name: 'camera_1'});
+ws.send(params);
+};
+const reader = new FileReader();
+
+// This fires after the blob has been read/loaded.
+reader.addEventListener('loadend', (e) => {
+  const text = e.srcElement.result;
+  document.getElementById("live-video").src  = 'data:image/jpg;base64,' + String(text);
+});
+
+// Start reading the blob as text.
+ws.onmessage = function (msg) {
+  reader.readAsText(msg.data);
+  params = JSON.stringify({command: 'video_feed', camera_name: 'camera_1'});
+  ws.send(params);
+};
+ws.onerror = function (e) {
+console.log(e);
+ws.send(1);
+};
+</script>
+</head>
+<body>
+<img id="live-video"/>
+</body>
+</html>
